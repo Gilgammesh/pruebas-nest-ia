@@ -24,5 +24,5 @@ export class Solicitud {
       eager: true,
     },
   )
-  requestProfiles: PerfilSolicitud;
+  requestProfiles: PerfilSolicitud[];
 }

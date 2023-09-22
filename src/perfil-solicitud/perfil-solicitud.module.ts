@@ -10,5 +10,6 @@ import { Candidato } from 'src/candidato/entities/candidato.entity';
   imports: [TypeOrmModule.forFeature([PerfilSolicitud, Solicitud, Candidato])],
   controllers: [PerfilSolicitudController],
   providers: [PerfilSolicitudService],
+  exports: [PerfilSolicitudService, TypeOrmModule],
 })
 export class PerfilSolicitudModule {}

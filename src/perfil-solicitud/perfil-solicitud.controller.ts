@@ -6,10 +6,13 @@ import {
   Patch,
   Param,
   Delete,
+  Query,
+  ParseUUIDPipe,
 } from '@nestjs/common';
 import { PerfilSolicitudService } from './perfil-solicitud.service';
 import { CreatePerfilSolicitudDto } from './dto/create-perfil-solicitud.dto';
 import { UpdatePerfilSolicitudDto } from './dto/update-perfil-solicitud.dto';
+import { PaginationDto } from 'src/common/dtos/pagination.dto';
 
 @Controller('perfil-solicitud')
 export class PerfilSolicitudController {
@@ -23,25 +26,25 @@ export class PerfilSolicitudController {
   }
 
   @Get()
-  findAll() {
-    return this.perfilSolicitudService.findAll();
+  findAll(@Query() paginationDto: PaginationDto) {
+    return this.perfilSolicitudService.findAll(paginationDto);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.perfilSolicitudService.findOne(+id);
+  findOne(@Param('id', ParseUUIDPipe) id: string) {
+    return this.perfilSolicitudService.findOne(id);
   }
 
   @Patch(':id')
   update(
-    @Param('id') id: string,
+    @Param('id', ParseUUIDPipe) id: string,
     @Body() updatePerfilSolicitudDto: UpdatePerfilSolicitudDto,
   ) {
-    return this.perfilSolicitudService.update(+id, updatePerfilSolicitudDto);
+    return this.perfilSolicitudService.update(id, updatePerfilSolicitudDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.perfilSolicitudService.remove(+id);
+  remove(@Param('id', ParseUUIDPipe) id: string) {
+    return this.perfilSolicitudService.remove(id);
   }
 }

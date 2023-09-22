@@ -1,26 +1,81 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+  Logger,
+} from '@nestjs/common';
 import { CreatePerfilSolicitudDto } from './dto/create-perfil-solicitud.dto';
 import { UpdatePerfilSolicitudDto } from './dto/update-perfil-solicitud.dto';
+import { PaginationDto } from 'src/common/dtos/pagination.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { PerfilSolicitud } from './entities/perfil-solicitud.entity';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class PerfilSolicitudService {
-  create(createPerfilSolicitudDto: CreatePerfilSolicitudDto) {
-    return 'This action adds a new perfilSolicitud';
+  private logger = new Logger('perfilSolicitud');
+
+  constructor(
+    @InjectRepository(PerfilSolicitud)
+    private readonly perfilSolicitudRepository: Repository<PerfilSolicitud>,
+  ) {}
+
+  async create(createPerfilSolicitudDto: CreatePerfilSolicitudDto) {
+    try {
+      await this.perfilSolicitudRepository.save(createPerfilSolicitudDto);
+    } catch (error) {
+      this.handleDBException(error);
+    }
+    return createPerfilSolicitudDto;
   }
 
-  findAll() {
-    return `This action returns all perfilSolicitud`;
+  async findAll(paginationDto: PaginationDto) {
+    const { limit, offset = 0 } = paginationDto;
+
+    const perfilSolicitudes = await this.perfilSolicitudRepository.find({
+      take: limit,
+      skip: offset,
+    });
+
+    return perfilSolicitudes;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} perfilSolicitud`;
+  async findOne(id: string) {
+    const perfilSolicitud = await this.perfilSolicitudRepository.findOneBy({
+      id,
+    });
+    return perfilSolicitud;
   }
 
-  update(id: number, updatePerfilSolicitudDto: UpdatePerfilSolicitudDto) {
-    return `This action updates a #${id} perfilSolicitud`;
+  async update(id: string, updatePerfilSolicitudDto: UpdatePerfilSolicitudDto) {
+    const perfilSolicitud = await this.perfilSolicitudRepository.preload({
+      id,
+      ...updatePerfilSolicitudDto,
+    });
+
+    try {
+      this.perfilSolicitudRepository.save(perfilSolicitud);
+    } catch (error) {
+      this.handleDBException(error);
+    }
+    return perfilSolicitud;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} perfilSolicitud`;
+  async remove(id: string) {
+    const perfilSolicitud = await this.findOne(id);
+    try {
+      this.perfilSolicitudRepository.remove(perfilSolicitud);
+    } catch (error) {
+      this.handleDBException(error);
+    }
+    return perfilSolicitud;
+  }
+
+  private handleDBException(error: any) {
+    if (error.code === '23505') throw new BadRequestException(error.detail);
+    this.logger.error(error);
+    throw new InternalServerErrorException(
+      'Unexpected error, check server logs',
+    );
   }
 }

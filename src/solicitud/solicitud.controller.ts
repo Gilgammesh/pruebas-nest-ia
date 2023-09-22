@@ -6,10 +6,13 @@ import {
   Patch,
   Param,
   Delete,
+  Query,
+  ParseArrayPipe,
 } from '@nestjs/common';
 import { SolicitudService } from './solicitud.service';
 import { CreateSolicitudDto } from './dto/create-solicitud.dto';
 import { UpdateSolicitudDto } from './dto/update-solicitud.dto';
+import { PaginationDto } from 'src/common/dtos/pagination.dto';
 
 @Controller('solicitud')
 export class SolicitudController {
@@ -21,25 +24,25 @@ export class SolicitudController {
   }
 
   @Get()
-  findAll() {
-    return this.solicitudService.findAll();
+  findAll(@Query() paginationDto: PaginationDto) {
+    return this.solicitudService.findAll(paginationDto);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.solicitudService.findOne(+id);
+  findOne(@Param('id', ParseArrayPipe) id: string) {
+    return this.solicitudService.findOne(id);
   }
 
   @Patch(':id')
   update(
-    @Param('id') id: string,
+    @Param('id', ParseArrayPipe) id: string,
     @Body() updateSolicitudDto: UpdateSolicitudDto,
   ) {
-    return this.solicitudService.update(+id, updateSolicitudDto);
+    return this.solicitudService.update(id, updateSolicitudDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.solicitudService.remove(+id);
+  remove(@Param('id', ParseArrayPipe) id: string) {
+    return this.solicitudService.remove(id);
   }
 }

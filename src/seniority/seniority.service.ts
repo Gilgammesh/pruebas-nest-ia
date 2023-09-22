@@ -62,7 +62,11 @@ export class SeniorityService {
 
   async remove(id: string) {
     const seniority = await this.findOne(id);
-    await this.seniorityRepository.remove(seniority);
+    try {
+      await this.seniorityRepository.remove(seniority);
+    } catch (error) {
+      this.handleDBException(error);
+    }
   }
 
   private handleDBException(error: any) {
